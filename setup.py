@@ -23,7 +23,7 @@ def clone_and_compile_patty():
             shutil.rmtree(_dir)
             print(f"Folder '{_dir}' deleted.")
     subprocess.run(["git", "clone", PATTY_REPO])
-    with open(os.path.join(PATTY_REPO.replace('.git',''), "__init__.py"), "w") as f:
+    with open(os.path.join("patty", "__init__.py"), "w") as f:
         f.write("\n")
 
 class install_patty(build_py):
