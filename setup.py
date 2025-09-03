@@ -74,7 +74,7 @@ setup(
         "natsort==8.3.1",
         "ordered-set==4.1.0",
         "pysmt==0.9.5",
-        "setuptools==67.6.0",
+        "setuptools>=67.6.0",
         "wheel==0.40.0",
         "boto3",
         "z3-solver",
