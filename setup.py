@@ -1,30 +1,37 @@
 #!/usr/bin/env python3
+import os
+import shutil
 import subprocess
-import sys
 
 from setuptools import setup
 from setuptools.command.build_py import build_py
 from setuptools.command.develop import develop
-import os
-import shutil
-
-
 
 long_description = "This package makes the [patty](https://github.com/matteocarde/patty/tree/main) planner available in the [unified_planning library](https://github.com/aiplan4eu/unified-planning) by the [AIPlan4EU project](https://www.aiplan4eu-project.eu/)."
-
 
 PATTY_REPO = "https://github.com/matteocarde/patty.git"
 def clone_and_compile_patty():
     
-    curr_dir = os.getcwd()
+    curr_dir = os.path.abspath(os.path.dirname(__file__))
     print("Cloning patty repository...")
     for _dir in ["patty"]:
         if os.path.exists(_dir):
             shutil.rmtree(_dir)
             print(f"Folder '{_dir}' deleted.")
     subprocess.run(["git", "clone", PATTY_REPO])
-    with open(os.path.join("patty", "__init__.py"), "w") as f:
-        f.write("\n")
+
+    patty_dir = os.path.join(curr_dir, "up_patty", "patty")
+    os.makedirs(patty_dir, exist_ok=True)
+    init_file = os.path.join(patty_dir, "__init__.py")
+    if not os.path.exists(init_file):
+        with open(init_file, "w") as f:
+            f.write("\n")
+    
+    shutil.copytree(os.path.join(curr_dir, "patty", "src"), os.path.join(patty_dir, "src"), False, None, dirs_exist_ok=True)
+    shutil.copy2(os.path.join(curr_dir, "patty", "main.py"), patty_dir)
+    shutil.copy2(os.path.join(curr_dir, "patty", "README.md"), patty_dir)
+    shutil.copy2(os.path.join(curr_dir, "patty", "LICENSE"), patty_dir)
+
 
 class install_patty(build_py):
     """Custom install command."""
@@ -56,11 +63,11 @@ setup(
     ],
     packages=["up_patty"],
     package_data={
-        "": [
-            "up_patty/patty/main.py",
-            "up_patty/patty/README.md",
-            "up_patty/patty/LICENSE.md",
-            "up_patty/patty/src/*",
+        "up_patty": [
+            "patty/main.py",
+            "patty/README.md",
+            "patty/LICENSE.md",
+            "patty/src/*",
         ]
     },
     install_requires=[
@@ -82,4 +89,5 @@ setup(
         "develop": install_patty,
     },
     has_ext_modules=lambda: True,
+    include_package_data=True,
 )
