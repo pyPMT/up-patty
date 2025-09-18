@@ -193,6 +193,7 @@ class PattyPlanner(Engine, OneshotPlannerMixin):
                 final_plan = PDDLReader().parse_plan_string(problem, '\n'.join(map(lambda a:a.strip().split(': ')[1], actions)))
                 plan_is_valid = self._validate_plan(problem, final_plan)
                 result_log_messages = []
+                ret_status = PlanGenerationResultStatus.SOLVED_SATISFICING
                 if not plan_is_valid:
                     # If plan validation fails, log it but still return the plan with a warning
                     validation_log = LogMessage(
@@ -201,9 +202,10 @@ class PattyPlanner(Engine, OneshotPlannerMixin):
                     )
                     result_log_messages = [validation_log]
                     final_plan = up.plans.SequentialPlan([])
+                    ret_status = PlanGenerationResultStatus.UNSOLVABLE_INCOMPLETELY
             
             return PlanGenerationResult(
-                PlanGenerationResultStatus.SOLVED_SATISFICING,
+                ret_status,
                 final_plan,
                 self.name,
                 log_messages=result_log_messages,
